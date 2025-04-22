@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Game } from '../../models/game';
 import { PlayerComponent } from "../player/player.component";
 import { MatIconModule } from '@angular/material/icon';
@@ -7,6 +7,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogAddPlayerComponent } from '../dialog-add-player/dialog-add-player.component';
 import { GameInfoComponent } from "../game-info/game-info.component";
+import { Firestore, collection, collectionData } from '@angular/fire/firestore';
 
 @Component({
   selector: 'app-game',
@@ -15,17 +16,23 @@ import { GameInfoComponent } from "../game-info/game-info.component";
   templateUrl: './game.component.html',
   styleUrls: ['./game.component.scss']
 })
-export class GameComponent {
+export class GameComponent implements OnInit {
 
   pickCardAnmimation = false
   currentCard: string = '';
   game: Game | null = null;
 
-  constructor(public dialog: MatDialog) {}
+  constructor(public dialog: MatDialog, private firestore: Firestore) {}
 
   ngOnInit(): void {
     this.newGame();
+    const itemsRef = collection(this.firestore, 'games');
+    collectionData(itemsRef)
+      .subscribe((game) => {
+        console.log('Game update', game);
+      });
   }
+
 
   newGame() {
     this.game = new Game();
