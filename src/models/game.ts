@@ -15,6 +15,24 @@ export class Game {
   
       this.shuffle(this.stack); // Shuffle the deck
     }
+
+    public toJson() {
+      return {
+        players: this.players,
+        stack: this.stack,
+        playedCards: this.playedCards,
+        currentPlayer: this.currentPlayer,
+      };
+    }
+
+    public static fromJson(json: any): Game {
+      const game = new Game();
+      game.players = json.players || [];
+      game.stack = json.stack || [];
+      game.playedCards = json.playedCards || [];
+      game.currentPlayer = json.currentPlayer || 0;
+      return game;
+    }
   
     /**
      * Shuffles an array in place using Fisher-Yates algorithm.
