@@ -7,9 +7,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogAddPlayerComponent } from '../dialog-add-player/dialog-add-player.component';
 import { GameInfoComponent } from "../game-info/game-info.component";
-import { Firestore, collection, collectionData, addDoc } from '@angular/fire/firestore';
 import { ActivatedRoute } from '@angular/router';
-import { doc, docData } from '@angular/fire/firestore';
+import { Firestore, doc, docData, updateDoc } from '@angular/fire/firestore';
 
 @Component({
   selector: 'app-game',
@@ -23,12 +22,14 @@ export class GameComponent implements OnInit {
   pickCardAnmimation = false
   currentCard: string = '';
   game: Game | null = null;
+  gameId: string = '';
 
   constructor(private route: ActivatedRoute, public dialog: MatDialog, private firestore: Firestore) {}
 
   ngOnInit(): void {
     this.route.params.subscribe((params) => {
       const gameId = params['id'];
+      this.gameId = gameId;
       console.log('Game ID:', gameId);
   
       const gameDocRef = doc(this.firestore, 'games', gameId);
@@ -54,12 +55,14 @@ export class GameComponent implements OnInit {
         this.pickCardAnmimation = true;
         console.log('New card:' + this.currentCard);
         console.log('Game is', this.game);
+        this.saveGame();
     
         this.game.currentPlayer++;
         this.game.currentPlayer = this.game.currentPlayer % this.game.players.length;
         setTimeout(() => {
           this.game?.playedCards.push(this.currentCard);
           this.pickCardAnmimation = false;
+          this.saveGame();
         }, 1000);
       } else {
         console.warn('No more cards in the stack!');
@@ -75,8 +78,20 @@ export class GameComponent implements OnInit {
     dialogRef.afterClosed().subscribe((name: string) => {
       if (name && name.length > 0) {
         this.game?.players.push(name);
+        this.saveGame();
       }
     });
   }
 
+  saveGame() {
+    if (!this.game) {
+      console.error('No game to save');
+      return;
+    }
+  
+    const gameRef = doc(this.firestore, 'games', this.gameId);
+    updateDoc(gameRef, this.game.toJson())
+      .then(() => console.log('Game successfully saved.'))
+      .catch((err) => console.error('Error saving game:', err));
+  }
 }
