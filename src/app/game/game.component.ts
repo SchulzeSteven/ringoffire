@@ -30,15 +30,28 @@ export class GameComponent implements OnInit {
     this.route.params.subscribe((params) => {
       const gameId = params['id'];
       this.gameId = gameId;
-      console.log('Game ID:', gameId);
   
       const gameDocRef = doc(this.firestore, 'games', gameId);
       docData(gameDocRef).subscribe((game: any) => {
-        console.log('Game update', game);
-        this.game = Game.fromJson(game);
+        const updatedGame = Game.fromJson(game);
+  
+        const prevLength = this.game?.playedCards.length || 0;
+        const newLength = updatedGame.playedCards.length;
+  
+        this.game = updatedGame;
+        this.currentCard = updatedGame.playedCards[updatedGame.playedCards.length - 1] || '';
+  
+        // 🎯 Animation auslösen bei neuer Karte
+        if (newLength > prevLength) {
+          this.pickCardAnmimation = true;
+          setTimeout(() => {
+            this.pickCardAnmimation = false;
+          }, 1000);
+        }
       });
     });
   }
+  
 
 
   newGame() {
@@ -47,31 +60,27 @@ export class GameComponent implements OnInit {
 
 
   takeCard() {
-    if (!this.pickCardAnmimation && this.game) { // Ensure no ongoing animation and game is initialized
-      if (this.game.stack.length > 0) { // Check if there are cards in the stack
-        this.currentCard = this.game.stack.pop() || ''; // Safely retrieve a card
-        console.log(this.currentCard);
+    if (!this.pickCardAnmimation && this.game) {
+      if (this.game.stack.length > 0) {
+        const drawnCard = this.game.stack.pop() || '';
   
         this.pickCardAnmimation = true;
-        console.log('New card:' + this.currentCard);
-        console.log('Game is', this.game);
-        this.saveGame();
-    
+        this.currentCard = drawnCard;
+  
         this.game.currentPlayer++;
-        this.game.currentPlayer = this.game.currentPlayer % this.game.players.length;
+        this.game.currentPlayer %= this.game.players.length;
+  
         setTimeout(() => {
-          this.game?.playedCards.push(this.currentCard);
+          this.game?.playedCards.push(drawnCard);
           this.pickCardAnmimation = false;
-          this.saveGame();
+          this.saveGame(); // Speichern erst, wenn Karte wirklich gezogen
         }, 1000);
       } else {
         console.warn('No more cards in the stack!');
       }
-    } else if (!this.game) {
-      console.error('Game not initialized. Please start a new game.');
     }
   }
-
+  
   openDialog(): void {
     const dialogRef = this.dialog.open(DialogAddPlayerComponent);
 

@@ -8,8 +8,13 @@
         src="/assets/img/cards/card_cover.png" alt="" srcset="">
         
         <!-- Stack for played cards -->
-        <img *ngFor="let card of game?.playedCards" class="played-card" 
-        src="/assets/img/cards/{{ card }}.png" alt="">
+        <img 
+            *ngFor="let card of game?.playedCards"
+            class="played-card"
+            src="/assets/img/cards/{{ card }}.png"
+            alt=""
+            [hidden]="pickCardAnmimation && card === currentCard"
+/>
 
         <!-- Current card (Animation) -->
         <img (click)="takeCard()" *ngIf="pickCardAnmimation" class="pick-card" style="right: 25px;" 
