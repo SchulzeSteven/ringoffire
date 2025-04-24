@@ -7,7 +7,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogAddPlayerComponent } from '../dialog-add-player/dialog-add-player.component';
 import { GameInfoComponent } from "../game-info/game-info.component";
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Firestore, doc, docData, updateDoc } from '@angular/fire/firestore';
 
 @Component({
@@ -24,7 +24,7 @@ export class GameComponent implements OnInit {
   game: Game | null = null;
   gameId: string = '';
 
-  constructor(private route: ActivatedRoute, public dialog: MatDialog, private firestore: Firestore) {}
+  constructor(private route: ActivatedRoute, private router: Router, public dialog: MatDialog, private firestore: Firestore) {}
 
   ngOnInit(): void {
     this.route.params.subscribe((params) => {
@@ -52,6 +52,10 @@ export class GameComponent implements OnInit {
     });
   }
   
+
+  goBackToStart() {
+    this.router.navigateByUrl('/');
+  }
 
 
   newGame() {

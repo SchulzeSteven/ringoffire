@@ -1,6 +1,28 @@
 <div class="start-screen">
-    <img src="assets/img/startbox.png" alt="" srcset="">
+    <!-- Hintergrundbild oder statisches Layout bleibt hier erhalten -->
+    <img src="assets/img/startbox.png" alt="Startbox" />
+  
+    <!-- Goldene Buttons im Startbereich -->
     <div class="start-label-box">
-        <img (click)="newGame()" src="assets/img/startlabel.png" alt="" srcset="">
+      <button class="gold-button" (click)="newGame()">Neues Spiel starten</button>
+      <button class="gold-button" (click)="showGames = true">Offene Spiele anzeigen</button>
     </div>
-</div>
+  
+    <!-- Overlay für Spieleliste -->
+    <div class="game-overlay" *ngIf="showGames">
+      <div class="game-list-window">
+        <h2>Offene Spiele</h2>
+        <ul>
+          <li *ngFor="let game of games">
+            <span class="game-id">Spiel-ID: {{ game.id }}</span>
+            <button mat-stroked-button class="gold-button-overlay" color="accent" (click)="joinGame(game.id)">Beitreten</button>
+            <button mat-icon-button class="gold-button-overlay" color="warn" aria-label="Löschen" (click)="deleteGame(game.id)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </li>
+        </ul>
+        <button mat-stroked-button class="gold-button-overlay" (click)="showGames = false">Schließen</button>
+      </div>
+    </div>
+  </div>
+  
