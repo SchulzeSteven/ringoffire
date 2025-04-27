@@ -6,4 +6,8 @@
 .mat-mdc-card {
     position: relative;
     box-shadow: 10px 10px 16px 1px;
+
+    @media (max-width: 720px) {
+        min-height: 150px;
+      }
 }

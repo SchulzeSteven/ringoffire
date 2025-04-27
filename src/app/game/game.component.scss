@@ -5,6 +5,25 @@
     ;
 }
 
+.scroll-container {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    display: flex;
+    overflow-x: scroll;
+    overflow-y: hidden;
+
+    app-player-mobile{
+        margin-left: 3px;
+        margin-right: 4px;
+    }
+
+    @media (min-width: 900px) {
+        display: none;
+      }
+}
+
 .field {
     display: flex;
     justify-content: center;
@@ -17,6 +36,9 @@
     background-repeat: no-repeat;
     >.card-stack {
         position: relative;
+        @media (max-width: 900px) {
+            bottom: -90px;
+          }
         >.top-card {
             cursor: pointer;
             transition: all 125ms ease-in-out;
@@ -43,6 +65,13 @@
     position: absolute;
     right: 32px;
     bottom: 32px;
+
+    @media (max-width: 900px) {
+        bottom: 60px;
+      }
+    @media (max-width: 720px) {
+        bottom: 130px;
+      }
 }
 
 .pin-bottom {
@@ -50,6 +79,13 @@
     bottom: 32px;
     left: 25%;
     width: 50%;
+
+    @media (max-width: 900px) {
+        bottom: 0px;
+        left: 0px;
+        right: 0px;
+        width: unset;
+      }
 }
 
 .back-button {
@@ -57,8 +93,30 @@
     top: 20px;
     left: 20px;
     z-index: 100;
+
+    @media (max-width: 500px) {
+        bottom: 1px;
+        right: 1px;
+        left: unset;
+        top: unset;
+      }
   }
 
+.mat-mdc-outlined-button:not(:disabled) {
+    border: unset;
+}
+
+::ng-deep .mat-mdc-button-touch-target {
+    height: 0px !important;
+}
+
+::ng-deep .mat-mdc-outlined-button .mdc-button__ripple {
+    top: 0px !important;
+    left: 0px !important;
+    bottom: 0px !important;
+    right: 0px !important;
+}
+  
 @keyframes pick-card-animation {
     0% {
         transform: scale(1);

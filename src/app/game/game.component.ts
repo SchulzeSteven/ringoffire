@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { Game } from '../../models/game';
 import { PlayerComponent } from "../player/player.component";
+import { PlayerMobileComponent } from "../player-mobile/player-mobile.component";
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
@@ -13,7 +14,7 @@ import { Firestore, doc, docData, updateDoc } from '@angular/fire/firestore';
 @Component({
   selector: 'app-game',
   standalone: true,
-  imports: [CommonModule, PlayerComponent, MatButtonModule, MatIconModule, GameInfoComponent],
+  imports: [CommonModule, PlayerComponent, PlayerMobileComponent, MatButtonModule, MatIconModule, GameInfoComponent],
   templateUrl: './game.component.html',
   styleUrls: ['./game.component.scss']
 })
