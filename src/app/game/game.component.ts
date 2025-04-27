@@ -85,7 +85,7 @@ export class GameComponent implements OnInit {
         setTimeout(() => {
           this.game?.playedCards.push(drawnCard);
           this.pickCardAnmimation = false;
-          this.saveGame(); // Speichern erst, wenn Karte wirklich gezogen
+          this.saveGame();
         }, 1000);
       } else {
         console.warn('No more cards in the stack!');
@@ -95,25 +95,24 @@ export class GameComponent implements OnInit {
 
   editPlayer(playerId: number) {
     console.log('Edit Player', playerId);
-    const dialogRef = this.dialog.open(EditPlayerComponent);
+    const dialogRef = this.dialog.open(EditPlayerComponent, {
+      data: { name: this.game?.players[playerId] }
+    });
   
     dialogRef.afterClosed().subscribe((result: string | undefined) => {
       if (result === undefined) {
         console.log('Dialog wurde abgebrochen.');
-        return; // ❌ Sofort stoppen, wenn nix zurückkommt
+        return;
       }
   
       console.log('Received change:', result);
   
       if (result === 'DELETE' && this.game) {
-        // 🔥 Spieler löschen
         this.game.players.splice(playerId, 1);
         this.game.player_images.splice(playerId, 1);
         this.saveGame();
         console.log('Player deleted');
-      } 
-      else if (this.game) {
-        // 🔥 Bild ändern
+      } else if (this.game) {
         this.game.player_images[playerId] = result;
         this.saveGame();
         console.log('Player image updated');
@@ -123,8 +122,9 @@ export class GameComponent implements OnInit {
   
   
   
+  
   openDialog(): void {
-    (document.activeElement as HTMLElement)?.blur(); // 👈 Fokus entfernen
+    (document.activeElement as HTMLElement)?.blur();
   
     const dialogRef = this.dialog.open(DialogAddPlayerComponent);
   

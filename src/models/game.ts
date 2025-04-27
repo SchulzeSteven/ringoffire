@@ -20,7 +20,7 @@ export class Game {
     public toJson() {
       return {
         players: this.players,
-        player_images: this.player_images, // Tippfehler korrigiert: "players_images" ➔ "player_images"
+        player_images: this.player_images,
         stack: this.stack,
         playedCards: this.playedCards,
         currentPlayer: this.currentPlayer,

@@ -1,6 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatDialogModule, MatDialogRef } from '@angular/material/dialog'; // <-- WICHTIG!
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 
 @Component({
@@ -12,7 +12,10 @@ import { MatButtonModule } from '@angular/material/button';
 })
 export class EditPlayerComponent {
 
-  constructor(public dialogRef: MatDialogRef<EditPlayerComponent>) {}  // <-- Hier hinzufügen!
+  constructor(
+    public dialogRef: MatDialogRef<EditPlayerComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: { name: string }
+  ) {}
 
   allProfilePictures: string[] = [
     'player.png',
@@ -20,4 +23,5 @@ export class EditPlayerComponent {
   ];
 
 }
+
 

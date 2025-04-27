@@ -26,7 +26,7 @@ export class DialogAddPlayerComponent {
   allProfilePictures: string[] = [
     'player.png',
     'playrin.png'
-    // ➔ Hier kannst du weitere Bilder ergänzen!
+    //Hier kannst du weitere Bilder ergänzen!
   ];
 
   constructor (public dialogRef: MatDialogRef<DialogAddPlayerComponent>) {}
