@@ -1,12 +1,34 @@
-<h1 mat-dialog-title>Add new player</h1>
+<h1 mat-dialog-title>Neuen Spieler hinzufügen</h1>
+
 <mat-dialog-content>
-  <p>Please enter the name of a player</p>
+  <p>Bitte gib den Namen des Spielers ein:</p>
+  
   <mat-form-field>
     <mat-label>Name</mat-label>
     <input matInput [(ngModel)]="name">
   </mat-form-field>
+
+  <div class="profile-picture-selection">
+    <p>Wähle ein Profilbild:</p>
+    <div class="picture-grid">
+      <img 
+        *ngFor="let picture of allProfilePictures"
+        [src]="'/assets/img/profile/' + picture"
+        [class.selected]="selectedImage === picture"
+        (click)="selectImage(picture)"
+        alt="Profilbild"
+      >
+    </div>
+  </div>
 </mat-dialog-content>
+
 <mat-dialog-actions>
-  <button mat-button (click)="onNoClick()" >No Thanks</button>
-  <button mat-button [disabled]="name.length == 0" [mat-dialog-close]="name" cdkFocusInitial>Ok</button>
+  <button mat-button (click)="onNoClick()" cdkFocusInitial>Abbrechen</button>
+<button mat-button 
+        [disabled]="name.length == 0 || !selectedImage" 
+        [mat-dialog-close]="{ name: name, image: selectedImage }">
+  OK
+</button>
+
 </mat-dialog-actions>
+

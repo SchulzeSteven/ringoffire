@@ -1,0 +1,26 @@
+.profile-picture-selection {
+    margin-top: 20px;
+  }
+  
+  .picture-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 10px;
+  }
+  
+  .picture-grid img {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: 0.3s;
+    border: 2px solid transparent;
+  }
+  
+  .picture-grid img.selected {
+    border: 2px solid #4caf50;
+    transform: scale(1.1);
+  }
+  

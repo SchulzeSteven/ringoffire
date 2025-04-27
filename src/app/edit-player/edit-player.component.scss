@@ -1,0 +1,32 @@
+.profile-picture-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .profile-picture {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    cursor: pointer;
+    padding: 8px;
+    transition: 0.3s ease;
+    border: 2px solid transparent;
+  
+    &:hover {
+      filter: brightness(1.1);
+      transform: scale(1.05);
+      border: 2px solid #4caf50;
+    }
+  }
+
+  h1 {
+    margin: 0;
+    padding: 0px 24px;
+  }
+
+  .margin-button {
+    gap: 16px;
+  }
+  

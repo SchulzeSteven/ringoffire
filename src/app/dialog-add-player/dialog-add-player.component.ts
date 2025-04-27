@@ -9,20 +9,34 @@ import { MatButtonModule } from '@angular/material/button';
 @Component({
   selector: 'app-dialog-add-player',
   standalone: true,
-  imports: [CommonModule, MatDialogModule, MatFormFieldModule, FormsModule, MatInputModule, MatButtonModule],
+  imports: [
+    CommonModule,
+    MatDialogModule,
+    MatFormFieldModule,
+    FormsModule,
+    MatInputModule,
+    MatButtonModule
+  ],
   templateUrl: './dialog-add-player.component.html',
   styleUrl: './dialog-add-player.component.scss'
 })
 export class DialogAddPlayerComponent {
   name: string = '';
+  selectedImage: string = '';
+  allProfilePictures: string[] = [
+    'player.png',
+    'playrin.png'
+    // ➔ Hier kannst du weitere Bilder ergänzen!
+  ];
 
   constructor (public dialogRef: MatDialogRef<DialogAddPlayerComponent>) {}
-
-  ngOnInit(): void {
-  }
 
   onNoClick() {
     this.dialogRef.close();
   }
 
+  selectImage(image: string) {
+    this.selectedImage = image;
+  }
 }
+

@@ -24,6 +24,14 @@
       }
 }
 
+app-player, app-player-mobile {
+    cursor: pointer;
+
+    &:hover {
+        filter: brightness(1.1);
+    }
+}
+
 .field {
     display: flex;
     justify-content: center;
@@ -116,6 +124,11 @@
     bottom: 0px !important;
     right: 0px !important;
 }
+
+::ng-deep .cdk-overlay-dark-backdrop {
+    background: rgba(0, 0, 0, 0.6) !important;
+    backdrop-filter: blur(2px) !important;
+  }
   
 @keyframes pick-card-animation {
     0% {
