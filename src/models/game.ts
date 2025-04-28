@@ -9,7 +9,7 @@ export class Game {
   
     constructor() {
       // Generate a full deck of cards
-      for (let i = 1; i < 2; i++) { // Changed `<` to `<=` for a complete deck (1 to 13)
+      for (let i = 1; i < 14; i++) { // Changed `<` to `<=` for a complete deck (1 to 13)
         this.stack.push(`spades_${i}`);
         this.stack.push(`hearts_${i}`);
         this.stack.push(`clubs_${i}`);

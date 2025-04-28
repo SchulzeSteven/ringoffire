@@ -124,22 +124,18 @@ export class GameComponent implements OnInit {
   }
   
   
-  async startRound() {
+  startRound() {
     if (!this.game) return;
   
-    const previousPlayer = this.game.currentPlayer; // 🔥 Wer war vorher?
-  
-    let randomIndex = previousPlayer;
-    // Solange der gleiche rauskommt, neu würfeln
-    while (randomIndex === previousPlayer && this.game.players.length > 1) {
-      randomIndex = Math.floor(Math.random() * this.game.players.length);
+    if (this.game.players.length < 2) {
+      alert('❗ Du benötigst mindestens 2 Spieler, um die Runde zu starten!');
+      return;
     }
   
-    this.game.currentPlayer = randomIndex;
+    const randomPlayer = Math.floor(Math.random() * this.game.players.length);
+    this.game.currentPlayer = randomPlayer;
     this.game.roundStarted = true;
-    
-    console.log('Neue Runde gestartet! Startspieler:', this.game.players[randomIndex]);
-    await this.saveGame();
+    this.saveGame();
   }
   
   
