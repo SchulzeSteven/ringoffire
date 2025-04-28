@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Game } from '../../models/game';
 import { PlayerComponent } from "../player/player.component";
 import { PlayerMobileComponent } from "../player-mobile/player-mobile.component";
@@ -19,18 +19,28 @@ import { Firestore, doc, docData, updateDoc, deleteDoc } from '@angular/fire/fir
   templateUrl: './game.component.html',
   styleUrls: ['./game.component.scss']
 })
-export class GameComponent implements OnInit {
+export class GameComponent implements OnInit, OnDestroy {  // ⬅️ OnDestroy hinzugefügt!
 
-  pickCardAnmimation = false
+  pickCardAnmimation = false;
   currentCard: string = '';
   game: Game | null = null;
   gameId: string = '';
   private isSaving: boolean = false;
   private endDialogOpen = false;
+  backgroundMusic = new Audio('/assets/audio/background-music.mp3');
+  volume: number = 5;
 
-  constructor(private route: ActivatedRoute, private router: Router, public dialog: MatDialog, private firestore: Firestore) {}
+  constructor(
+    private route: ActivatedRoute, 
+    private router: Router, 
+    public dialog: MatDialog, 
+    private firestore: Firestore
+  ) {}
 
   ngOnInit(): void {
+    this.backgroundMusic.loop = true;
+    this.backgroundMusic.volume = 0.0002;
+
     this.route.params.subscribe((params) => {
       const gameId = params['id'];
       this.gameId = gameId;
@@ -39,10 +49,9 @@ export class GameComponent implements OnInit {
       docData(gameDocRef).subscribe(async (game: any) => {
         if (!game) {
           console.warn('Game does not exist or was deleted.');
-  
-          this.dialog.closeAll();      // ✅ End-Dialog überall schließen
-          this.endDialogOpen = false;  // ✅ Status zurücksetzen
-  
+          this.dialog.closeAll();
+          this.endDialogOpen = false;
+          this.stopMusic();
           this.goBackToStart();
           return;
         }
@@ -56,15 +65,11 @@ export class GameComponent implements OnInit {
         this.currentCard = updatedGame.playedCards[updatedGame.playedCards.length - 1] || '';
         this.preloadNextCardImage();
   
-        // 🎴 Animation für neue Karte
         if (newLength > prevLength) {
           this.pickCardAnmimation = true;
-          setTimeout(() => {
-            this.pickCardAnmimation = false;
-          }, 1000);
+          setTimeout(() => this.pickCardAnmimation = false, 1000);
         }
   
-        // 🎯 EndDialog Handling
         if (this.game?.gameOver && !this.endDialogOpen) {
           await this.openEndDialog();
         } else if (!this.game?.gameOver && this.endDialogOpen) {
@@ -72,11 +77,36 @@ export class GameComponent implements OnInit {
           this.endDialogOpen = false;
         }
       });
+
+      this.playMusic();  // Musik starten nach Spielstart
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.stopMusic();
+  }
+
+  playMusic() {
+    this.backgroundMusic.loop = true;
+    this.backgroundMusic.volume = this.volume / 100;
+    this.backgroundMusic.play().catch(err => {
+      console.warn('Autoplay blockiert, Benutzerinteraktion nötig', err);
     });
   }
   
-  
-  
+  onVolumeChange(event: Event) {
+    const input = event.target as HTMLInputElement;
+    this.volume = +input.value;
+    if (this.backgroundMusic) {
+      this.backgroundMusic.volume = this.volume / 100;
+    }
+  }
+
+  stopMusic() {
+    this.backgroundMusic.pause();
+    this.backgroundMusic.currentTime = 0;
+  }
+
   getPlayerImage(i: number): string {
     return this.game?.player_images?.[i] || 'player.png';
   }
@@ -85,23 +115,21 @@ export class GameComponent implements OnInit {
     this.router.navigateByUrl('/');
   }
 
-
   newGame() {
     this.game = new Game();
     this.game.currentPlayer = -1;
+    this.playMusic();  // Musik neu starten
   }
-
 
   async takeCard() {
     if (!this.pickCardAnmimation && !this.isSaving && this.game) {
       if (!this.game.roundStarted) {
-        console.warn('Runde noch nicht gestartet!');
+        alert('❗ Runde noch nicht gestartet!');
         return;
       }
   
       if (this.game.stack.length > 0) {
         const drawnCard = this.game.stack.pop() || '';
-  
         this.pickCardAnmimation = true;
         this.currentCard = drawnCard;
         this.isSaving = true;
@@ -116,29 +144,24 @@ export class GameComponent implements OnInit {
           this.isSaving = false;
         }, 1000);
       } else {
-        console.warn('No more cards in the stack!');
+        console.warn('No more cards!');
         this.game.gameOver = true;
         await this.saveGame();
       }
     }
   }
-  
-  
+
   startRound() {
     if (!this.game) return;
-  
     if (this.game.players.length < 2) {
-      alert('❗ Du benötigst mindestens 2 Spieler, um die Runde zu starten!');
+      alert('❗ Mindestens 2 Spieler erforderlich!');
       return;
     }
-  
     const randomPlayer = Math.floor(Math.random() * this.game.players.length);
     this.game.currentPlayer = randomPlayer;
     this.game.roundStarted = true;
     this.saveGame();
   }
-  
-  
 
   async openEndDialog() {
     if (this.endDialogOpen) return;
@@ -153,12 +176,10 @@ export class GameComponent implements OnInit {
       if (result === 'restart_same') {
         const players = [...this.game!.players];
         const images = [...this.game!.player_images];
-  
         this.newGame();
         this.game!.players = players;
         this.game!.player_images = images;
         this.game!.gameOver = false;
-  
         await this.saveGame();
       } else if (result === 'restart_new') {
         this.newGame();
@@ -170,40 +191,26 @@ export class GameComponent implements OnInit {
       this.endDialogOpen = false;
     });
   }
-  
-  
-  
 
   editPlayer(playerId: number) {
-    console.log('Edit Player', playerId);
     const dialogRef = this.dialog.open(EditPlayerComponent, {
       data: { name: this.game?.players[playerId] }
     });
   
     dialogRef.afterClosed().subscribe((result: string | undefined) => {
-      if (result === undefined) {
-        console.log('Dialog wurde abgebrochen.');
-        return;
-      }
-  
-      console.log('Received change:', result);
+      if (result === undefined) return;
   
       if (result === 'DELETE' && this.game) {
         this.game.players.splice(playerId, 1);
         this.game.player_images.splice(playerId, 1);
         this.saveGame();
-        console.log('Player deleted');
       } else if (this.game) {
         this.game.player_images[playerId] = result;
         this.saveGame();
-        console.log('Player image updated');
       }
     });
   }
-  
-  
-  
-  
+
   openDialog(): void {
     (document.activeElement as HTMLElement)?.blur();
   
@@ -216,24 +223,20 @@ export class GameComponent implements OnInit {
         this.saveGame();
       }
     });
-  }  
-  
+  }
 
   async deleteGame() {
     if (!this.gameId) {
       console.warn('No game ID to delete.');
       return;
     }
-  
     try {
       const gameRef = doc(this.firestore, 'games', this.gameId);
       await deleteDoc(gameRef);
-      console.log('Game deleted successfully.');
     } catch (error) {
       console.error('Error deleting game:', error);
     }
   }
-  
 
   preloadNextCardImage() {
     const nextCard = this.game?.stack?.[this.game.stack.length - 1];
@@ -242,19 +245,12 @@ export class GameComponent implements OnInit {
       img.src = `/assets/img/cards/${nextCard}.png`;
     }
   }
-  
-  
-
 
   saveGame() {
-    if (!this.game) {
-      console.error('No game to save');
-      return;
-    }
-  
+    if (!this.game) return;
     const gameRef = doc(this.firestore, 'games', this.gameId);
     updateDoc(gameRef, this.game.toJson())
-      .then(() => console.log('Game successfully saved.'))
+      .then(() => console.log('Game saved'))
       .catch((err) => console.error('Error saving game:', err));
   }
 }

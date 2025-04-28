@@ -1,16 +1,16 @@
 <div class="player-desktop-container hide-mobile">
-    <div class="player-desktop-scroll">
-      <app-player 
-        (click)="editPlayer(i)" 
-        *ngFor="let player of game?.players; let i = index;" 
-        [playerActive]="!!game?.roundStarted && i === game?.currentPlayer"
-        [image]="getPlayerImage(i)" 
-        [name]="player" 
-        [ngStyle]="{'top.px': 10 + (i * 90)}" 
-        class="player-position">
-      </app-player>
-    </div>
+  <div class="player-desktop-scroll">
+    <app-player 
+      (click)="editPlayer(i)" 
+      *ngFor="let player of game?.players; let i = index;" 
+      [playerActive]="!!game?.roundStarted && i === game?.currentPlayer"
+      [image]="getPlayerImage(i)" 
+      [name]="player" 
+      [ngStyle]="{'top.px': 10 + (i * 90)}" 
+      class="player-position">
+    </app-player>
   </div>
+</div>
 
 <div class="scroll-container hide-desktop">
   <app-player-mobile 
@@ -24,36 +24,21 @@
 
 <div class="field">
   <div class="card-stack">
-    <!-- Card stack -->
-    <img 
-      [ngStyle]="{'right.px': i * 5}" 
-      *ngFor="let count of [0,1,2,3]; let i = index;" 
-      src="/assets/img/cards/card_cover.png" 
-      alt="">
+    <img [ngStyle]="{'right.px': i * 5}" *ngFor="let count of [0,1,2,3]; let i = index;" 
+      src="/assets/img/cards/card_cover.png" alt="">
 
-    <img 
-      (click)="takeCard()" 
-      class="top-card" 
-      style="right: 25px;" 
-      src="/assets/img/cards/card_cover.png" 
-      alt="">
+    <img (click)="takeCard()" class="top-card" style="right: 25px;" 
+      src="/assets/img/cards/card_cover.png" alt="">
 
-    <!-- Stack for played cards -->
-    <img 
-      *ngFor="let card of game?.playedCards"
+    <img *ngFor="let card of game?.playedCards"
       class="played-card"
       src="/assets/img/cards/{{ card }}.png"
       alt=""
       [hidden]="pickCardAnmimation && card === currentCard">
 
-    <!-- Current card (Animation) -->
-    <img 
-      (click)="takeCard()" 
-      *ngIf="pickCardAnmimation" 
-      class="pick-card" 
-      style="right: 25px;" 
-      src="/assets/img/cards/{{ currentCard }}.png" 
-      alt="">
+    <img (click)="takeCard()" *ngIf="pickCardAnmimation" 
+      class="pick-card" style="right: 25px;" 
+      src="/assets/img/cards/{{ currentCard }}.png" alt="">
   </div>
 </div>
 
@@ -76,3 +61,9 @@
   (click)="startRound()">
   Runde starten
 </button>
+
+<div class="volume-control">
+  <mat-icon>volume_up</mat-icon>
+  <input type="range" min="0" max="100" [value]="volume" (input)="onVolumeChange($event)">
+  <div class="volume-display">{{ volume }}%</div>
+</div>

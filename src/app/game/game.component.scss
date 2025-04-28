@@ -10,7 +10,7 @@
     top: 100px;
     right: 0;
     bottom: 0;
-    width: 27%;
+    width: 35%;
     overflow: hidden; /* Anfangs keine Scrollbar */
   }
   
@@ -119,11 +119,8 @@ app-player, app-player-mobile {
     bottom: 32px;
 
     @media (max-width: 900px) {
-        bottom: 60px;
-      }
-    @media (max-width: 720px) {
         bottom: 130px;
-      }
+    }
 }
 
 .pin-bottom {
@@ -191,6 +188,91 @@ app-player, app-player-mobile {
         top: 200px;
       }
   }
+  
+  .background-music {
+    display: none;
+  }
+
+  .volume-control {
+    position: absolute;
+    bottom: 160px;
+    right: unset;
+    display: flex;
+    flex-direction: column; /* <- Damit Icon, Slider und % untereinander */
+    align-items: center;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 0px 20px;
+    border-radius: 16px;
+    backdrop-filter: blur(6px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    gap: 6px; /* Abstand zwischen Icon, Slider und Prozent */
+  
+    mat-icon {
+      color: white;
+      text-shadow: 1px 1px 2px black;
+      font-size: 28px;
+    }
+  
+    input[type="range"] {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 120px;
+      height: 8px;
+      background: linear-gradient(to right, #ff4081, #7c4dff);
+      border-radius: 5px;
+      outline: none;
+      transition: background 0.3s;
+  
+      &::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 20px;
+        height: 20px;
+        background: white;
+        border: 2px solid #7c4dff;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: background 0.3s, transform 0.2s;
+  
+        &:hover {
+          background: #ff4081;
+          transform: scale(1.2);
+        }
+      }
+  
+      &::-moz-range-thumb {
+        width: 20px;
+        height: 20px;
+        background: white;
+        border: 2px solid #7c4dff;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: background 0.3s, transform 0.2s;
+  
+        &:hover {
+          background: #ff4081;
+          transform: scale(1.2);
+        }
+      }
+    }
+  
+    .volume-display {
+      color: white;
+      font-size: 14px;
+      font-weight: bold;
+      text-shadow: 1px 1px 2px black;
+    }
+  
+    @media (max-width: 600px) {
+      bottom: 210px;
+      right: 16px;
+  
+      input[type="range"] {
+        width: 110px;
+      }
+    }
+  }
+  
   
   
 @keyframes pick-card-animation {
