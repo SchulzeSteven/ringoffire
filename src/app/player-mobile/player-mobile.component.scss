@@ -9,6 +9,10 @@
     border-bottom-right-radius: 50px;
     >span {
         font-size: 14px;
+        max-width: 80%;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
     }
     img {
         width: 50px;

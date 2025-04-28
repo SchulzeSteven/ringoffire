@@ -10,7 +10,7 @@ import { DialogAddPlayerComponent } from '../dialog-add-player/dialog-add-player
 import { EditPlayerComponent } from "../edit-player/edit-player.component";
 import { GameInfoComponent } from "../game-info/game-info.component";
 import { ActivatedRoute, Router } from '@angular/router';
-import { Firestore, doc, docData, updateDoc } from '@angular/fire/firestore';
+import { Firestore, doc, docData, updateDoc, deleteDoc } from '@angular/fire/firestore';
 
 @Component({
   selector: 'app-game',
@@ -25,6 +25,8 @@ export class GameComponent implements OnInit {
   currentCard: string = '';
   game: Game | null = null;
   gameId: string = '';
+  private isSaving: boolean = false;
+  private endDialogOpen = false;
 
   constructor(private route: ActivatedRoute, private router: Router, public dialog: MatDialog, private firestore: Firestore) {}
 
@@ -32,30 +34,48 @@ export class GameComponent implements OnInit {
     this.route.params.subscribe((params) => {
       const gameId = params['id'];
       this.gameId = gameId;
-    
-      const gameDocRef = doc(this.firestore, 'games', gameId);
-      docData(gameDocRef).subscribe((game: any) => {
-        const updatedGame = Game.fromJson(game);
   
+      const gameDocRef = doc(this.firestore, 'games', gameId);
+      docData(gameDocRef).subscribe(async (game: any) => {
+        if (!game) {
+          console.warn('Game does not exist or was deleted.');
+  
+          this.dialog.closeAll();      // ✅ End-Dialog überall schließen
+          this.endDialogOpen = false;  // ✅ Status zurücksetzen
+  
+          this.goBackToStart();
+          return;
+        }
+  
+        const updatedGame = Game.fromJson(game);
         const prevLength = this.game?.playedCards.length || 0;
         const newLength = updatedGame.playedCards.length;
   
-        // 🔥 Spielerbilder aktualisieren
         updatedGame.player_images = game.player_images || [];
-  
         this.game = updatedGame;
         this.currentCard = updatedGame.playedCards[updatedGame.playedCards.length - 1] || '';
+        this.preloadNextCardImage();
   
-        // 🎯 Animation auslösen bei neuer Karte
+        // 🎴 Animation für neue Karte
         if (newLength > prevLength) {
           this.pickCardAnmimation = true;
           setTimeout(() => {
             this.pickCardAnmimation = false;
           }, 1000);
         }
+  
+        // 🎯 EndDialog Handling
+        if (this.game?.gameOver && !this.endDialogOpen) {
+          await this.openEndDialog();
+        } else if (!this.game?.gameOver && this.endDialogOpen) {
+          this.dialog.closeAll();
+          this.endDialogOpen = false;
+        }
       });
     });
   }
+  
+  
   
   getPlayerImage(i: number): string {
     return this.game?.player_images?.[i] || 'player.png';
@@ -71,27 +91,61 @@ export class GameComponent implements OnInit {
   }
 
 
-  takeCard() {
-    if (!this.pickCardAnmimation && this.game) {
+  async takeCard() {
+    if (!this.pickCardAnmimation && !this.isSaving && this.game) {
       if (this.game.stack.length > 0) {
         const drawnCard = this.game.stack.pop() || '';
   
         this.pickCardAnmimation = true;
         this.currentCard = drawnCard;
+        this.isSaving = true;
   
         this.game.currentPlayer++;
         this.game.currentPlayer %= this.game.players.length;
   
-        setTimeout(() => {
+        setTimeout(async () => {
           this.game?.playedCards.push(drawnCard);
           this.pickCardAnmimation = false;
-          this.saveGame();
+          await this.saveGame();
+          this.isSaving = false;
+          
+          this.preloadNextCardImage(); // 🎯 Hier nach dem Speichern preloaden!
         }, 1000);
       } else {
         console.warn('No more cards in the stack!');
+        this.game.gameOver = true;
+        await this.saveGame();
       }
     }
   }
+  
+  
+  
+
+  async openEndDialog() {
+    if (this.endDialogOpen) return;
+    this.endDialogOpen = true;
+  
+    const { EndDialogComponent } = await import('../end-dialog/end-dialog.component');
+    const dialogRef = this.dialog.open(EndDialogComponent, {
+      disableClose: true // 🚨 Nur per Button schließen!
+    });
+  
+    dialogRef.afterClosed().subscribe(async (result) => {
+      if (result === 'restart') {
+        this.newGame();
+        this.game!.gameOver = false;
+        await this.saveGame();
+      } else if (result === 'menu') {
+        await this.deleteGame();
+        // Achtung: Kein goBackToStart() hier direkt
+        // --> Wird automatisch in ngOnInit() nach Delete ausgelöst!
+      }
+      this.endDialogOpen = false; // 🧹 Sauber setzen am Ende
+    });
+  }
+  
+  
 
   editPlayer(playerId: number) {
     console.log('Edit Player', playerId);
@@ -137,6 +191,33 @@ export class GameComponent implements OnInit {
     });
   }  
   
+
+  async deleteGame() {
+    if (!this.gameId) {
+      console.warn('No game ID to delete.');
+      return;
+    }
+  
+    try {
+      const gameRef = doc(this.firestore, 'games', this.gameId);
+      await deleteDoc(gameRef);
+      console.log('Game deleted successfully.');
+    } catch (error) {
+      console.error('Error deleting game:', error);
+    }
+  }
+  
+
+  preloadNextCardImage() {
+    const nextCard = this.game?.stack?.[this.game.stack.length - 1];
+    if (nextCard) {
+      const img = new Image();
+      img.src = `/assets/img/cards/${nextCard}.png`;
+    }
+  }
+  
+  
+
 
   saveGame() {
     if (!this.game) {
