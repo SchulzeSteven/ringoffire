@@ -126,7 +126,7 @@ app-player, app-player-mobile {
 }
 
 ::ng-deep .cdk-overlay-dark-backdrop {
-    background: rgba(0, 0, 0, 0.6) !important;
+    /* background: rgba(0, 0, 0, 0.6) !important; */
     backdrop-filter: blur(2px) !important;
   }
   

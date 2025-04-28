@@ -128,22 +128,31 @@ export class GameComponent implements OnInit {
   
     const { EndDialogComponent } = await import('../end-dialog/end-dialog.component');
     const dialogRef = this.dialog.open(EndDialogComponent, {
-      disableClose: true // 🚨 Nur per Button schließen!
+      disableClose: true,
     });
   
     dialogRef.afterClosed().subscribe(async (result) => {
-      if (result === 'restart') {
+      if (result === 'restart_same') {
+        const players = [...this.game!.players];
+        const images = [...this.game!.player_images];
+  
+        this.newGame();
+        this.game!.players = players;
+        this.game!.player_images = images;
+        this.game!.gameOver = false;
+  
+        await this.saveGame();
+      } else if (result === 'restart_new') {
         this.newGame();
         this.game!.gameOver = false;
         await this.saveGame();
       } else if (result === 'menu') {
         await this.deleteGame();
-        // Achtung: Kein goBackToStart() hier direkt
-        // --> Wird automatisch in ngOnInit() nach Delete ausgelöst!
       }
-      this.endDialogOpen = false; // 🧹 Sauber setzen am Ende
+      this.endDialogOpen = false;
     });
   }
+  
   
   
 

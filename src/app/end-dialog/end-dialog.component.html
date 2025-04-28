@@ -5,7 +5,13 @@
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">
-  <button mat-button (click)="restart()">Neues Spiel</button>
-  <button mat-button color="primary" (click)="backToMenu()">Menü</button>
+  <button mat-button (click)="backToMenu()">Menü</button>
+  <button mat-button color="primary" (click)="askRestartOptions()">Neues Spiel</button>
 </mat-dialog-actions>
+
+<div *ngIf="showRestartOptions" class="restart-options">
+  <p>Wie möchtest du weitermachen?</p>
+  <button mat-stroked-button color="primary" (click)="restart(true)">Mit gleichen Spielern</button>
+  <button mat-stroked-button color="warn" (click)="restart(false)">Komplett neu</button>
+</div>
 

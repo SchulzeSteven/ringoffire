@@ -7,18 +7,24 @@ import { CommonModule } from '@angular/common';
   selector: 'app-end-dialog',
   standalone: true,
   imports: [CommonModule, MatDialogModule, MatButtonModule],
-  templateUrl: './end-dialog.component.html',   // <-- geändert!
-  styleUrls: ['./end-dialog.component.scss']    // <-- optional, falls du ein separates SCSS willst
+  templateUrl: './end-dialog.component.html',
+  styleUrls: ['./end-dialog.component.scss'],
 })
 export class EndDialogComponent {
+  showRestartOptions = false;
 
-  constructor(private dialogRef: MatDialogRef<EndDialogComponent>) {}
+  constructor(public dialogRef: MatDialogRef<EndDialogComponent>) {}
 
-  restart() {
-    this.dialogRef.close('restart');
+  askRestartOptions() {
+    this.showRestartOptions = true;
+  }
+
+  restart(samePlayers: boolean) {
+    this.dialogRef.close(samePlayers ? 'restart_same' : 'restart_new');
   }
 
   backToMenu() {
     this.dialogRef.close('menu');
   }
 }
+
