@@ -88,11 +88,17 @@ export class GameComponent implements OnInit {
 
   newGame() {
     this.game = new Game();
+    this.game.currentPlayer = -1;
   }
 
 
   async takeCard() {
     if (!this.pickCardAnmimation && !this.isSaving && this.game) {
+      if (!this.game.roundStarted) {
+        console.warn('Runde noch nicht gestartet!');
+        return;
+      }
+  
       if (this.game.stack.length > 0) {
         const drawnCard = this.game.stack.pop() || '';
   
@@ -108,8 +114,6 @@ export class GameComponent implements OnInit {
           this.pickCardAnmimation = false;
           await this.saveGame();
           this.isSaving = false;
-          
-          this.preloadNextCardImage(); // 🎯 Hier nach dem Speichern preloaden!
         }, 1000);
       } else {
         console.warn('No more cards in the stack!');
@@ -119,6 +123,24 @@ export class GameComponent implements OnInit {
     }
   }
   
+  
+  async startRound() {
+    if (!this.game) return;
+  
+    const previousPlayer = this.game.currentPlayer; // 🔥 Wer war vorher?
+  
+    let randomIndex = previousPlayer;
+    // Solange der gleiche rauskommt, neu würfeln
+    while (randomIndex === previousPlayer && this.game.players.length > 1) {
+      randomIndex = Math.floor(Math.random() * this.game.players.length);
+    }
+  
+    this.game.currentPlayer = randomIndex;
+    this.game.roundStarted = true;
+    
+    console.log('Neue Runde gestartet! Startspieler:', this.game.players[randomIndex]);
+    await this.saveGame();
+  }
   
   
 

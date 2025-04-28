@@ -5,6 +5,7 @@ export class Game {
     public playedCards: string[] = [];
     public currentPlayer: number = 0;
     public gameOver: boolean = false;
+    public roundStarted: boolean = false;
   
     constructor() {
       // Generate a full deck of cards
@@ -25,7 +26,8 @@ export class Game {
         stack: this.stack,
         playedCards: this.playedCards,
         currentPlayer: this.currentPlayer,
-        gameOver: this.gameOver, // hier hinzufügen!
+        gameOver: this.gameOver,
+        roundStarted: this.roundStarted
       };
     }
     
@@ -39,6 +41,7 @@ export class Game {
       game.playedCards = json.playedCards || [];
       game.currentPlayer = json.currentPlayer || 0;
       game.gameOver = json.gameOver || false;
+      game.roundStarted = json.roundStarted || false;
       return game;
     }
     
